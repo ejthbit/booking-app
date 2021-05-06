@@ -1,28 +1,29 @@
 import express from 'express'
-import bodyParser from 'body-parser'
 import cors from 'cors'
+import dotenv from 'dotenv'
+import { errorHandler } from './middlewares/errorHandler'
+import allRoutes from './routes/index'
+import mongoConnect from './config/mongoConnect'
+import swaggerUi from 'swagger-ui-express'
+import definition from '../swagger.json'
+import swaggerJSDoc from 'swagger-jsdoc'
 
-const app = express();
+const startServer = () => {
+    const options = {
+        definition,
+        // Paths to files containing OpenAPI definitions
+        apis: ['./src/routes/*.js'],
+    }
 
-const corsOptions = {
-  origin: "http://localhost:8081"
-};
-
-app.use(cors(corsOptions));
-
-// parse requests of content-type - application/json
-app.use(bodyParser.json());
-
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// simple route
-app.get("/", (req, res) => {
-  res.json({ message: "Welcome to rootPage of bookingApp" });
-});
-
-// set port, listen for requests
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
+    const swaggerSpec = swaggerJSDoc(options)
+    dotenv.config()
+    const app = express()
+    mongoConnect()
+    app.use(express.json(), errorHandler, express.urlencoded({ extended: true }), cors({ origin: 'http://localhost:8081' }))
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+    allRoutes(app)
+    app.listen(8080, () => {
+        console.log(`🚀🌑 server is running on port 8080.`)
+    })
+}
+startServer()
