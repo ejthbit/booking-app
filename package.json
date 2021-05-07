@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "nodemon --exec babel-node src/server.js"
+        "start": "nodemon --exec babel-node src/server.js",
+        "swagger-autogen": "node src/swagger.js"
     },
     "author": "8bit",
     "license": "ISC",
@@ -20,7 +21,7 @@
         "mongoose": "^5.12.7",
         "nodemon": "^2.0.7",
         "prettier": "^2.2.1",
-        "swagger-jsdoc": "^6.1.0",
+        "swagger-autogen": "^2.8.1",
         "swagger-ui-express": "^4.1.6"
     },
     "devDependencies": {

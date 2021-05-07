@@ -1,6 +1,6 @@
 import Booking from '../models/Booking'
 
-exports.create = async (req, res, next) => {
+export const create = async (req, res, next) => {
     try {
         const booking = new Booking({ contact: req.body.contact, name: req.body.name, timeOfBooking: req.body.timeOfBooking })
         const newBooking = await booking.save()
@@ -10,28 +10,46 @@ exports.create = async (req, res, next) => {
     }
 }
 
-exports.findAll = async (req, res, next) => {
+export const findAll = async (req, res, next) => {
     try {
-        const bookings = await Booking.find({})
+        const { from, to } = req.params
+        const bookings = await Booking.find(
+            from && to
+                ? {
+                      timeOfBooking: { $gte: new Date(from).toISOString(), $lte: new Date(to).toISOString() },
+                  }
+                : {}
+        ).sort({ timeOfBooking: 1 })
         res.json(bookings)
     } catch (err) {
         next(err)
     }
 }
 
-exports.findOne = (req, res, next) => {}
-
-exports.update = async (req, res, next) => {
+export const findBookingById = async (req, res, next) => {
     try {
         const { id } = req.params
-        const update = Booking.findOneAndUpdate({ _id: id }, req.body)
-        res.json(update)
+        const foundBooking = await Booking.findById(id)
+        res.json(foundBooking)
     } catch (err) {
         next(err)
     }
 }
 
-exports.delete = async (req, res, next) => {
+export const updateBooking = async (req, res, next) => {
+    try {
+        const { id } = req.params
+        await Booking.findOneAndUpdate(id, req.body)
+        res.json({
+            ...req.body,
+            status: 200,
+        })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const deleteBooking = async (req, res, next) => {
     try {
         const { id } = req.params
         await Booking.findOneAndDelete({ _id: id })

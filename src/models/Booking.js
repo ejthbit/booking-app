@@ -3,15 +3,15 @@ import mongoose from 'mongoose'
 const bookingSchema = new mongoose.Schema(
     {
         contact: {
-            type: 'String',
+            type: String,
             required: true,
         },
         name: {
-            type: 'String',
+            type: String,
             required: true,
         },
         timeOfBooking: {
-            type: 'String',
+            type: Date,
             required: true,
         },
     },
