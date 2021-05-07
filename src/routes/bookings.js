@@ -6,6 +6,7 @@ const router = express.Router()
 
 router.post('/booking', Booking.create)
 router.get('/getBookings/:from?/:to?', Booking.findAll)
+router.get('/getAvailableSlots/:beginningOfDay/:endOfDay', Booking.getAvailableTimeSlotsForDay)
 router.get('/booking/:id', Booking.findBookingById)
 router.delete('/booking/:id', Booking.deleteBooking)
 router.put('/booking/:id', Booking.updateBooking)

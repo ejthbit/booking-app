@@ -1,4 +1,5 @@
 import Booking from '../models/Booking'
+import { getSlots } from '../utils/getSlotsObject'
 
 export const create = async (req, res, next) => {
     try {
@@ -54,6 +55,20 @@ export const deleteBooking = async (req, res, next) => {
         const { id } = req.params
         await Booking.findOneAndDelete({ _id: id })
         return res.sendStatus(200)
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const getAvailableTimeSlotsForDay = async (req, res, next) => {
+    try {
+        const { beginningOfDay, endOfDay } = req.params
+        const existingBookings = await Booking.find({
+            timeOfBooking: { $gte: new Date(beginningOfDay).toISOString(), $lte: new Date(endOfDay).toISOString() },
+        }).sort({ timeOfBooking: 1 })
+        const bookedAppointments = existingBookings.map(({ timeOfBooking }) => timeOfBooking.toISOString())
+        const slotsForDay = getSlots(beginningOfDay, endOfDay, 15, bookedAppointments)
+        return res.json(slotsForDay)
     } catch (err) {
         next(err)
     }
