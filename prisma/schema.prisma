@@ -1,0 +1,15 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model bookings {
+  id            Int     @id @default(autoincrement())
+  contact       String? @db.VarChar(255)
+  name          String? @db.VarChar(255)
+  timeofbooking String? @db.VarChar(255)
+}
