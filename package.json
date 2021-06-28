@@ -6,7 +6,8 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "nodemon --exec babel-node src/server.js",
-        "swagger-autogen": "node src/swagger.js"
+        "introspect": "prisma introspect",
+        "generate": "prisma generate"
     },
     "author": "8bit",
     "license": "ISC",

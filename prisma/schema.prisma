@@ -9,7 +9,8 @@ datasource db {
 
 model bookings {
   id            Int     @id @default(autoincrement())
-  contact       String? @db.VarChar(255)
+  contact       Json?   @db.Json
   name          String? @db.VarChar(255)
   timeofbooking String? @db.VarChar(255)
+  birthdate     String? @db.VarChar(255)
 }

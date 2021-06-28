@@ -4,14 +4,21 @@ const prisma = new PrismaClient()
 
 export const create = async (req, res, next) => {
     try {
-        const newBooking = await prisma.bookings.create({
-            data: {
-                contact: req.body.contact,
-                name: req.body.name,
-                timeofbooking: req.body.timeofbooking,
-            },
-        })
-        res.json(newBooking)
+        const existingBooking = await prisma.bookings.findFirst({ where: { timeofbooking: req.body.timeofbooking } })
+        const newBooking =
+            !existingBooking &&
+            (await prisma.bookings.create({
+                data: {
+                    contact: req.body.contact,
+                    name: req.body.name,
+                    birthdate: req.body.birthDate,
+                    timeofbooking: req.body.timeofbooking,
+                },
+            }))
+        if (existingBooking) {
+            res.status(400)
+            res.render('error', { error: 'Na daný termín již existuje objednávka.' })
+        } else res.json({ ...newBooking, status: 200 })
     } catch (err) {
         next(err)
     }
