@@ -4,21 +4,24 @@ const prisma = new PrismaClient()
 
 export const create = async (req, res, next) => {
     try {
+        const { contact, name, birthDate, timeofbooking } = req.body
         const existingBooking = await prisma.bookings.findFirst({ where: { timeofbooking: req.body.timeofbooking } })
-        const newBooking =
-            !existingBooking &&
-            (await prisma.bookings.create({
-                data: {
-                    contact: req.body.contact,
-                    name: req.body.name,
-                    birthdate: req.body.birthDate,
-                    timeofbooking: req.body.timeofbooking,
-                },
-            }))
         if (existingBooking) {
-            res.status(400)
-            res.render('error', { error: 'Na daný termín již existuje objednávka.' })
-        } else res.json({ ...newBooking, status: 200 })
+            res.status(409).send({
+                error: 409,
+                message: 'Na daný termín již existuje objednávka.',
+            })
+        } else {
+            const newBooking = await prisma.bookings.create({
+                data: {
+                    contact,
+                    name,
+                    birthdate: birthDate,
+                    timeofbooking,
+                },
+            })
+            res.status(200).send({ ...newBooking, status: 200 })
+        }
     } catch (err) {
         next(err)
     }
@@ -54,7 +57,9 @@ export const findBookingById = async (req, res, next) => {
                 id: Number(id),
             },
         })
-        res.json(foundBooking)
+        foundBooking
+            ? res.status(200).json(foundBooking)
+            : res.status(404).json({ message: 'Entry for given id not found!', status: 404 })
     } catch (err) {
         next(err)
     }
