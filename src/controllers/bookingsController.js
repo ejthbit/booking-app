@@ -1,5 +1,6 @@
 import { getSlots } from '../utils/getSlotsObject'
 import { PrismaClient } from '@prisma/client'
+import doctorsMock from '../doctorsMock.json'
 const prisma = new PrismaClient()
 
 export const create = async (req, res, next) => {
@@ -114,6 +115,15 @@ export const getAvailableTimeSlotsForDay = async (req, res, next) => {
         const bookedAppointments = existingBookings.map(({ timeofbooking }) => timeofbooking)
         const slotsForDay = getSlots(beginningOfDay, endOfDay, 15, bookedAppointments)
         return res.json(slotsForDay)
+    } catch (err) {
+        next(err)
+    }
+}
+export const getDoctorServicesForMonth = async (req, res, next) => {
+    try {
+        const { month } = req.params
+        const services = doctorsMock
+        res.json(services)
     } catch (err) {
         next(err)
     }

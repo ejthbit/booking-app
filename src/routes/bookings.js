@@ -11,6 +11,7 @@ router
     .get('/getBookings/:from?/:to?', bookingController.findAll)
     .get('/getAvailableSlots/:beginningOfDay/:endOfDay', bookingController.getAvailableTimeSlotsForDay)
     .get('/booking/:id', bookingController.findBookingById)
+    .get('/getDoctorServicesForMonth', bookingController.getDoctorServicesForMonth)
     .delete('/booking/:id', bookingController.deleteBooking)
     .put('/booking/:id', bookingController.updateBooking)
 
