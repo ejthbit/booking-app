@@ -9,7 +9,6 @@ const startServer = () => {
     const port = process.env.PORT || 5000
     const app = express()
     app.use(express.json(), errorHandler, express.urlencoded({ extended: true }), cors({ origin: process.env.ORIGIN }))
-    app.use((req, res, next) => res.header('Access-Control-Allow-Origin', 'http://localhost:9000/'))
     allRoutes(app)
     app.listen(port, () => {
         console.log(`🚀🌑 server is running on port ${port}.`)
