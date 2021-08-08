@@ -14,3 +14,10 @@ model bookings {
   timeofbooking String? @db.VarChar(255)
   birthdate     String? @db.VarChar(255)
 }
+
+model doctorServices {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  month      String   @db.VarChar(255)
+  days       Json?    @db.Json
+}

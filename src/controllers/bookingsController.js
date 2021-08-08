@@ -1,6 +1,5 @@
 import { getSlots } from '../utils/getSlotsObject'
 import { PrismaClient } from '@prisma/client'
-import doctorsMock from '../doctorsMock.json'
 const prisma = new PrismaClient()
 
 export const create = async (req, res, next) => {
@@ -119,11 +118,18 @@ export const getAvailableTimeSlotsForDay = async (req, res, next) => {
         next(err)
     }
 }
+
 export const getDoctorServicesForMonth = async (req, res, next) => {
     try {
         const { month } = req.params
-        const services = doctorsMock
-        res.json(services)
+        const foundService = await prisma.doctorServices.findFirst({
+            where: {
+                month,
+            },
+        })
+        foundService
+            ? res.status(200).json(foundService)
+            : res.status(404).json({ message: 'Entry for given month not found!', status: 404 })
     } catch (err) {
         next(err)
     }
