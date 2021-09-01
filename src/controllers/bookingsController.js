@@ -4,12 +4,12 @@ const prisma = new PrismaClient()
 
 export const create = async (req, res, next) => {
     try {
-        const { contact, name, birthDate, timeofbooking } = req.body
-        const existingBooking = await prisma.bookings.findFirst({ where: { timeofbooking: req.body.timeofbooking } })
+        const { contact, name, birthDate, timeofbooking, workplace } = req.body
+        const existingBooking = await prisma.bookings.findFirst({ where: { timeofbooking, workplace: Number(workplace) } })
         if (existingBooking) {
             res.status(409).send({
                 error: 409,
-                message: 'Na daný termín již existuje objednávka.',
+                message: 'Na daný termín již existuje objednávka.', // english
             })
         } else {
             const newBooking = await prisma.bookings.create({
@@ -18,6 +18,7 @@ export const create = async (req, res, next) => {
                     name,
                     birthdate: birthDate,
                     timeofbooking,
+                    workplace,
                 },
             })
             res.status(200).send({ ...newBooking, status: 200 })
@@ -34,6 +35,29 @@ export const findAll = async (req, res, next) => {
             from && to
                 ? {
                       where: {
+                          timeofbooking: {
+                              gte: new Date(from).toISOString(),
+                              lte: new Date(to).toISOString(),
+                          },
+                      },
+                      orderBy: { timeofbooking: 'desc' },
+                  }
+                : {}
+        )
+        res.json(bookings)
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const findAllByCriteria = async (req, res, next) => {
+    try {
+        const { from, to, workplace } = req.params
+        const bookings = await prisma.bookings.findMany(
+            from && to
+                ? {
+                      where: {
+                          ...(workplace && { workplace: Number(workplace) }),
                           timeofbooking: {
                               gte: new Date(from).toISOString(),
                               lte: new Date(to).toISOString(),
@@ -101,13 +125,14 @@ export const deleteBooking = async (req, res, next) => {
 
 export const getAvailableTimeSlotsForDay = async (req, res, next) => {
     try {
-        const { beginningOfDay, endOfDay } = req.params
+        const { beginningOfDay, endOfDay, workplace } = req.params
         const existingBookings = await prisma.bookings.findMany({
             where: {
                 timeofbooking: {
                     gte: new Date(beginningOfDay).toISOString(),
                     lte: new Date(endOfDay).toISOString(),
                 },
+                workplace: Number(workplace),
             },
             orderBy: { timeofbooking: 'desc' },
         })
@@ -121,10 +146,11 @@ export const getAvailableTimeSlotsForDay = async (req, res, next) => {
 
 export const getDoctorServicesForMonth = async (req, res, next) => {
     try {
-        const { month } = req.params
+        const { month, workplace } = req.params
         const foundService = await prisma.doctorServices.findFirst({
             where: {
                 month,
+                workplace: Number(workplace),
             },
         })
         foundService

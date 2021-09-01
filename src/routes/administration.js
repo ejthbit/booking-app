@@ -8,7 +8,7 @@ const router = express.Router()
 router
     .post('/doctorService', verifyToken, adminstrationController.createDoctorService)
     .delete('/doctorService/:id', verifyToken, adminstrationController.deleteDoctorService)
-    .put('/doctorService/:month', verifyToken, adminstrationController.updateDoctorService)
+    .put('/doctorService/:month/:workplace', verifyToken, adminstrationController.updateDoctorService)
     .post('/signUp', adminstrationController.signUp)
     .post('/signIn', adminstrationController.signIn)
 

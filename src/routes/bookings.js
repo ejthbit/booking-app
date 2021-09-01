@@ -10,9 +10,10 @@ const router = express.Router()
 router
     .post('/booking', validate(bookingValidationSchema), bookingController.create)
     .get('/getBookings/:from?/:to?', bookingController.findAll)
-    .get('/getAvailableSlots/:beginningOfDay/:endOfDay', bookingController.getAvailableTimeSlotsForDay)
+    .get('/getBookings/:from?/:to?/:workplace?', bookingController.findAllByCriteria)
+    .get('/getAvailableSlots/:beginningOfDay/:endOfDay/:workplace', bookingController.getAvailableTimeSlotsForDay)
     .get('/booking/:id', bookingController.findBookingById)
-    .get('/getDoctorServicesForMonth/:month', bookingController.getDoctorServicesForMonth)
+    .get('/getDoctorServicesForMonth/:month/:workplace?', bookingController.getDoctorServicesForMonth)
     .delete('/booking/:id', verifyToken, bookingController.deleteBooking)
     .put('/booking/:id', verifyToken, bookingController.updateBooking)
 

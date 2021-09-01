@@ -5,8 +5,8 @@ import jwt from 'jsonwebtoken'
 
 export const createDoctorService = async (req, res, next) => {
     try {
-        const { month, days } = req.body
-        const existingBooking = await prisma.doctorServices.findFirst({ where: { month } })
+        const { month, days, workplace } = req.body
+        const existingBooking = await prisma.doctorServices.findFirst({ where: { month, workplace: Number(workplace) } })
         if (existingBooking) {
             res.status(409).send({
                 error: 409,
@@ -17,6 +17,7 @@ export const createDoctorService = async (req, res, next) => {
                 data: {
                     month,
                     days,
+                    workplace: Number(workplace),
                 },
             })
             res.status(200).send({ ...newServiceRecord, status: 200 })
@@ -44,8 +45,8 @@ export const deleteDoctorService = async (req, res, next) => {
 
 export const updateDoctorService = async (req, res, next) => {
     try {
-        const { month } = req.params
-        const existingService = await prisma.doctorServices.findFirst({ where: { month } })
+        const { month, workplace } = req.params
+        const existingService = await prisma.doctorServices.findFirst({ where: { month, workplace: Number(workplace) } })
 
         const updatedDoctorService =
             existingService &&

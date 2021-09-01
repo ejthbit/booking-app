@@ -9,4 +9,7 @@ export const bookingValidationSchema = [
     body('birthDate', 'Birth date field cannot be empty!').exists({
         checkNull: true,
     }),
+    body('workplace', 'Workplace cannot be empty!').exists({
+        checkNull: true,
+    }),
 ]
