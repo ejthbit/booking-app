@@ -9,3 +9,12 @@ export const getAmbulances = async (req, res, next) => {
         next(err)
     }
 }
+export const getDoctors = async (req, res, next) => {
+    const { workplaceId } = req.params
+    try {
+        const selectedAmbulanceDoctors = await prisma.doctors.findMany({ where: { workplace_id: { hasSome: [workplaceId] } } })
+        res.status(200).send({ data: selectedAmbulanceDoctors, status: 200 })
+    } catch (err) {
+        next(err)
+    }
+}

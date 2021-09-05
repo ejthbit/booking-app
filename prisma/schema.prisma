@@ -40,3 +40,12 @@ model workplaces {
   address      String?
   workplace_id Int
 }
+
+model doctors {
+  id                      Int      @id @default(autoincrement())
+  created_at              DateTime @default(now()) @db.Timestamp(6)
+  doctor_id               Int
+  name                    String   @db.VarChar(255)
+  workplace_id            String[]
+  preferred_service_start String?  @db.VarChar(5)
+}
