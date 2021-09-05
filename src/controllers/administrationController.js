@@ -53,6 +53,7 @@ export const updateDoctorService = async (req, res, next) => {
             (await prisma.doctorServices.updateMany({
                 where: {
                     month,
+                    workplace: Number(workplace),
                 },
                 data: {
                     ...req.body,
