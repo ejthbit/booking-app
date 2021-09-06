@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 import bcrypt from 'bcrypt'
+import { addHours } from 'date-fns'
 import jwt from 'jsonwebtoken'
 
 export const createDoctorService = async (req, res, next) => {
@@ -107,7 +108,7 @@ export const signUp = async (req, res, next) => {
 export const signIn = async (req, res, next) => {
     try {
         const { email, password } = req.body
-
+        const JWT_KEY_EXP_TIME = 1
         const user = await prisma.users.findFirst({ where: { email } })
         !user && res.status(404).json({ message: 'User with given email not found!', status: 404 })
         bcrypt.compare(password, user.password, (err, result) => {
@@ -120,10 +121,13 @@ export const signIn = async (req, res, next) => {
                     },
                     `${process.env.JWT_SECRET_KEY}`,
                     {
-                        expiresIn: '1h',
+                        expiresIn: `${JWT_KEY_EXP_TIME}h`,
                     }
                 )
-                return res.status(200).json({ success: true, message: 'Authentication successful!', token, status: 200 })
+                const expires = addHours(new Date(), JWT_KEY_EXP_TIME)
+                return res
+                    .status(200)
+                    .json({ success: true, message: 'Authentication successful!', token, status: 200, exp: expires.getTime() })
             }
             res.status(401).json({ message: 'Auth Failed', status: 401 })
         })
