@@ -108,7 +108,7 @@ export const signUp = async (req, res, next) => {
 export const signIn = async (req, res, next) => {
     try {
         const { email, password } = req.body
-        const JWT_KEY_EXP_TIME = 1
+        const JWT_KEY_EXP_TIME = 8
         const user = await prisma.users.findFirst({ where: { email } })
         !user && res.status(404).json({ message: 'User with given email not found!', status: 404 })
         bcrypt.compare(password, user.password, (err, result) => {
