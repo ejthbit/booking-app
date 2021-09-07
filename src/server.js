@@ -12,7 +12,7 @@ const startServer = () => {
         express.json(),
         errorHandler,
         express.urlencoded({ extended: true }),
-        cors({ origin: process.env.ORIGIN, credentials: true })
+        cors({ origin: process.env.ORIGIN.split(','), credentials: true })
     )
     allRoutes(app)
     app.listen(port, () => {
