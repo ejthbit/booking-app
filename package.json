@@ -16,7 +16,7 @@
         "@babel/core": "^7.14.0",
         "@babel/node": "^7.13.13",
         "@babel/preset-env": "^7.14.0",
-        "@prisma/client": "^2.23.0",
+        "@prisma/client": "^2.30.3",
         "bcrypt": "^5.0.1",
         "cors": "^2.8.5",
         "date-fns": "^2.21.2",
@@ -29,7 +29,7 @@
     },
     "devDependencies": {
         "eslint": "^7.25.0",
-        "prisma": "^2.23.0",
+        "prisma": "^2.30.3",
         "ramda": "^0.27.1"
     }
 }

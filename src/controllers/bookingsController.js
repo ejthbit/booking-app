@@ -4,8 +4,8 @@ const prisma = new PrismaClient()
 
 export const create = async (req, res, next) => {
     try {
-        const { contact, name, birthDate, timeofbooking, workplace } = req.body
-        const existingBooking = await prisma.bookings.findFirst({ where: { timeofbooking, workplace: Number(workplace) } })
+        const { contact, name, birthDate, start, end, workplace } = req.body
+        const existingBooking = await prisma.bookings.findFirst({ where: { start, workplace: Number(workplace) } })
         if (existingBooking) {
             res.status(409).send({
                 error: 409,
@@ -17,7 +17,8 @@ export const create = async (req, res, next) => {
                     contact,
                     name,
                     birthdate: birthDate,
-                    timeofbooking,
+                    start,
+                    end,
                     workplace,
                 },
             })
@@ -35,12 +36,12 @@ export const findAll = async (req, res, next) => {
             from && to
                 ? {
                       where: {
-                          timeofbooking: {
+                          start: {
                               gte: new Date(from).toISOString(),
                               lte: new Date(to).toISOString(),
                           },
                       },
-                      orderBy: { timeofbooking: 'desc' },
+                      orderBy: { start: 'desc' },
                   }
                 : {}
         )
@@ -58,12 +59,12 @@ export const findAllByCriteria = async (req, res, next) => {
                 ? {
                       where: {
                           ...(workplace && { workplace: Number(workplace) }),
-                          timeofbooking: {
+                          start: {
                               gte: new Date(from).toISOString(),
                               lte: new Date(to).toISOString(),
                           },
                       },
-                      orderBy: { timeofbooking: 'desc' },
+                      orderBy: { start: 'desc' },
                   }
                 : {}
         )
@@ -92,12 +93,14 @@ export const findBookingById = async (req, res, next) => {
 export const updateBooking = async (req, res, next) => {
     try {
         const { id } = req.params
+        const { name, start } = req.body
         const updatedBooking = await prisma.bookings.update({
             where: {
                 id: Number(id),
             },
             data: {
-                ...req.body,
+                name,
+                start,
             },
         })
         res.json({
@@ -128,15 +131,15 @@ export const getAvailableTimeSlotsForDay = async (req, res, next) => {
         const { beginningOfDay, endOfDay, workplace } = req.params
         const existingBookings = await prisma.bookings.findMany({
             where: {
-                timeofbooking: {
+                start: {
                     gte: new Date(beginningOfDay).toISOString(),
                     lte: new Date(endOfDay).toISOString(),
                 },
                 workplace: Number(workplace),
             },
-            orderBy: { timeofbooking: 'desc' },
+            orderBy: { start: 'desc' },
         })
-        const bookedAppointments = existingBookings.map(({ timeofbooking }) => timeofbooking)
+        const bookedAppointments = existingBookings.map(({ start }) => start)
         const slotsForDay = getSlots(beginningOfDay, endOfDay, 15, bookedAppointments)
         return res.json(slotsForDay)
     } catch (err) {

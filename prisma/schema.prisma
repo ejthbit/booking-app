@@ -8,12 +8,13 @@ datasource db {
 }
 
 model bookings {
-  id            Int     @id @default(autoincrement())
-  contact       Json?   @db.Json
-  name          String? @db.VarChar(255)
-  timeofbooking String? @db.VarChar(255)
-  birthdate     String? @db.VarChar(255)
-  workplace     Int
+  id        Int     @id @default(autoincrement())
+  contact   Json?   @db.Json
+  name      String? @db.VarChar(255)
+  birthdate String? @db.VarChar(255)
+  workplace Int
+  end       String? @db.VarChar(255)
+  start     String? @db.VarChar(255)
 }
 
 model doctorServices {
