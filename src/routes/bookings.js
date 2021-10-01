@@ -16,5 +16,6 @@ router
     .get('/getDoctorServicesForMonth/:month/:workplace?', bookingController.getDoctorServicesForMonth)
     .delete('/booking/:id', verifyToken, bookingController.deleteBooking)
     .put('/booking/:id', verifyToken, bookingController.updateBooking)
+    .get('/getSonographyDates/:month', bookingController.getSonographyDates)
 
 export default router

@@ -125,9 +125,17 @@ export const signIn = async (req, res, next) => {
                     }
                 )
                 const expires = addHours(new Date(), JWT_KEY_EXP_TIME)
-                return res
-                    .status(200)
-                    .json({ success: true, message: 'Authentication successful!', token, status: 200, exp: expires.getTime() })
+                return res.status(200).json({
+                    success: true,
+                    message: 'Authentication successful!',
+                    token,
+                    status: 200,
+                    exp: expires.getTime(),
+                    user: {
+                        name: user.name,
+                        default_workplace: user.default_workplace,
+                    },
+                })
             }
             res.status(401).json({ message: 'Auth Failed', status: 401 })
         })

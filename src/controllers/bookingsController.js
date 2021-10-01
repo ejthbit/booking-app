@@ -1,5 +1,8 @@
-import { getSlots } from '../utils/getSlotsObject'
 import { PrismaClient } from '@prisma/client'
+import { endOfMonth, startOfMonth } from 'date-fns'
+import { sendMail } from '../helpers/mailer'
+import { getSlots } from '../utils/getSlotsObject'
+import { confirmationTemplate } from '../utils/mailerTemplates'
 const prisma = new PrismaClient()
 
 export const create = async (req, res, next) => {
@@ -22,6 +25,7 @@ export const create = async (req, res, next) => {
                     workplace,
                 },
             })
+            if (contact.email) sendMail(confirmationTemplate(start, contact.email), res)
             res.status(200).send({ ...newBooking, status: 200 })
         }
     } catch (err) {
@@ -158,6 +162,25 @@ export const getDoctorServicesForMonth = async (req, res, next) => {
         })
         foundService
             ? res.status(200).json(foundService)
+            : res.status(404).json({ message: 'Entry for given month not found!', status: 404 })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const getSonographyDates = async (req, res, next) => {
+    try {
+        const { month } = req.params
+        const foundDates = await prisma.sonography.findMany({
+            where: {
+                date: {
+                    gte: startOfMonth(new Date(month)).toISOString().slice(0, 10),
+                    lte: endOfMonth(new Date(month)).toISOString().slice(0, 10),
+                },
+            },
+        })
+        foundDates
+            ? res.status(200).json(foundDates)
             : res.status(404).json({ message: 'Entry for given month not found!', status: 404 })
     } catch (err) {
         next(err)
