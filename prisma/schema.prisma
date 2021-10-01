@@ -31,7 +31,7 @@ model users {
   email             String   @db.VarChar(255)
   password          String
   name              String?  @db.VarChar(255)
-  default_workplace String?  @db.VarChar(255)
+  default_workplace Int?
 }
 
 model workplaces {
