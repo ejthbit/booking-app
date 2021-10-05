@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 
 export const create = async (req, res, next) => {
     try {
-        const { contact, name, birthDate, start, end, workplace } = req.body
+        const { contact, name, birthDate, start, end, workplace, category } = req.body
         const existingBooking = await prisma.bookings.findFirst({ where: { start, workplace: Number(workplace) } })
         if (existingBooking) {
             res.status(409).send({
@@ -23,6 +23,7 @@ export const create = async (req, res, next) => {
                     start,
                     end,
                     workplace,
+                    category,
                 },
             })
             if (contact.email) sendMail(confirmationTemplate(start, contact.email), res)
@@ -97,7 +98,7 @@ export const findBookingById = async (req, res, next) => {
 export const updateBooking = async (req, res, next) => {
     try {
         const { id } = req.params
-        const { name, start, end, birthdate } = req.body
+        const { name, start, end, birthdate, completed, category } = req.body
         const updatedBooking = await prisma.bookings.update({
             where: {
                 id: Number(id),
@@ -107,6 +108,8 @@ export const updateBooking = async (req, res, next) => {
                 start,
                 end,
                 birthdate,
+                completed,
+                category,
             },
         })
         res.json({
