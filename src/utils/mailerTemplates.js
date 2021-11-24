@@ -1,12 +1,21 @@
-import { format, parseISO, subHours } from 'date-fns'
-
-export const confirmationTemplate = (start, email) => ({
+export const confirmationTemplate = (selectedAmbulance, { start, contact, name }) => ({
     from: process.env.EMAIL,
-    to: email,
+    to: contact.email,
     subject: 'Potvzení objednávky termínu',
     text: `Dobrý den
-Potvrzujeme přijetí Vaší objednávky na termín ${format(subHours(parseISO(start), 2), 'dd-MM-yyyy kk:mm')}.
+(${name})
+Potvrzujeme přijetí Vaší objednávky v ambulanci ${selectedAmbulance.name} na termín ${start.toLocaleString('en-GB', {
+        timeZone: 'UTC',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    })}.
 V případě změny Vašeho termínu, budete kontaktována telefonicky.
+Pokud máte jakékoli dotazy týkající se Vaši objednávky,
+kontaktujte nás telefonicky nebo prostřednictvím emailu
+${selectedAmbulance.contact.email}
 
 Těšíme se na Vás.
 

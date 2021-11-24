@@ -1,32 +1,26 @@
 import { PrismaClient } from '@prisma/client'
-import { endOfMonth, startOfMonth } from 'date-fns'
+import { endOfMonth, parseISO, startOfMonth } from 'date-fns'
 import { sendMail } from '../helpers/mailer'
+import * as BookingsService from '../services/bookingsServices'
+import * as ConfigurationService from '../services/configurationServices'
 import { getSlots } from '../utils/getSlotsObject'
 import { confirmationTemplate } from '../utils/mailerTemplates'
+
 const prisma = new PrismaClient()
 
 export const create = async (req, res, next) => {
     try {
-        const { contact, name, birthDate, start, end, workplace, category } = req.body
-        const existingBooking = await prisma.bookings.findFirst({ where: { start, workplace: Number(workplace) } })
+        const { contact, start, workplace } = req.body
+        const existingBooking = await prisma.appointments.findFirst({ where: { start, workplace: Number(workplace) } })
+        const selectedAmbulance = await prisma.workplaces.findFirst({ where: { workplace_id: workplace } })
         if (existingBooking) {
             res.status(409).send({
                 error: 409,
-                message: 'Na daný termín již existuje objednávka.', // english
+                message: 'This booking slot is already taken.', // english
             })
         } else {
-            const newBooking = await prisma.bookings.create({
-                data: {
-                    contact,
-                    name,
-                    birthdate: birthDate,
-                    start,
-                    end,
-                    workplace,
-                    category,
-                },
-            })
-            if (contact.email) sendMail(confirmationTemplate(start, contact.email), res)
+            const newBooking = await BookingsService.createBooking(req.body)
+            if (newBooking && contact.email) sendMail(confirmationTemplate(selectedAmbulance, newBooking), res)
             res.status(200).send({ ...newBooking, status: 200 })
         }
     } catch (err) {
@@ -37,7 +31,7 @@ export const create = async (req, res, next) => {
 export const findAll = async (req, res, next) => {
     try {
         const { from, to } = req.params
-        const bookings = await prisma.bookings.findMany(
+        const bookings = await prisma.appointments.findMany(
             from && to
                 ? {
                       where: {
@@ -59,7 +53,7 @@ export const findAll = async (req, res, next) => {
 export const findAllByCriteria = async (req, res, next) => {
     try {
         const { from, to, workplace } = req.params
-        const bookings = await prisma.bookings.findMany(
+        const bookings = await prisma.appointments.findMany(
             from && to
                 ? {
                       where: {
@@ -82,7 +76,7 @@ export const findAllByCriteria = async (req, res, next) => {
 export const findBookingById = async (req, res, next) => {
     try {
         const { id } = req.params
-        const foundBooking = await prisma.bookings.findUnique({
+        const foundBooking = await prisma.appointments.findUnique({
             where: {
                 id: Number(id),
             },
@@ -99,7 +93,7 @@ export const updateBooking = async (req, res, next) => {
     try {
         const { id } = req.params
         const { name, start, end, birthdate, completed, category } = req.body
-        const updatedBooking = await prisma.bookings.update({
+        const updatedBooking = await prisma.appointments.update({
             where: {
                 id: Number(id),
             },
@@ -124,7 +118,7 @@ export const updateBooking = async (req, res, next) => {
 export const deleteBooking = async (req, res, next) => {
     try {
         const { id } = req.params
-        await prisma.bookings.delete({
+        await prisma.appointments.delete({
             where: {
                 id: Number(id),
             },
@@ -138,19 +132,21 @@ export const deleteBooking = async (req, res, next) => {
 export const getAvailableTimeSlotsForDay = async (req, res, next) => {
     try {
         const { beginningOfDay, endOfDay, workplace } = req.params
-        const existingBookings = await prisma.bookings.findMany({
+        const existingBookings = await prisma.appointments.findMany({
             where: {
                 start: {
-                    gte: new Date(beginningOfDay).toISOString(),
-                    lte: new Date(endOfDay).toISOString(),
+                    gte: parseISO(beginningOfDay),
+                    lte: parseISO(endOfDay),
                 },
                 workplace: Number(workplace),
             },
             orderBy: { start: 'desc' },
         })
-        const bookedAppointments = existingBookings.map(({ start }) => start)
-        const slotsForDay = getSlots(beginningOfDay, endOfDay, 15, bookedAppointments)
-        return res.json(slotsForDay)
+
+        const bookedAppointments = existingBookings.map(({ start }) => start.toISOString())
+        const lunchBreakTimes = await ConfigurationService.getLunchBreakTimes(workplace, beginningOfDay)
+        const availableTimeSlots = getSlots(beginningOfDay, endOfDay, 15, bookedAppointments, lunchBreakTimes)
+        return res.json(availableTimeSlots)
     } catch (err) {
         next(err)
     }

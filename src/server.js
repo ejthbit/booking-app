@@ -1,13 +1,12 @@
-import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import express from 'express'
+import fs from 'fs'
+import helmet from 'helmet'
+import morgan from 'morgan'
+import path from 'path'
 import { errorHandler } from './middlewares/errorHandler'
 import allRoutes from './routes/index'
-import helmet from 'helmet'
-import corsOptions from './middlewares/corsOptions'
-import morgan from 'morgan'
-import fs from 'fs'
-import path from 'path'
 
 const startServer = () => {
     dotenv.config()
@@ -19,7 +18,7 @@ const startServer = () => {
         express.json(),
         errorHandler,
         express.urlencoded({ extended: true }),
-        cors(corsOptions),
+        cors(),
         morgan('combined', { stream: accessLogStream })
     )
     app.disable('x-powered-by')

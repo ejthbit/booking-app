@@ -62,3 +62,23 @@ model sonography {
   from       String   @db.VarChar(255)
   to         String   @db.VarChar(255)
 }
+
+model appointments {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  name       String   @db.VarChar(255)
+  birthdate  String   @db.VarChar(255)
+  contact    Json?    @db.Json
+  start      DateTime @db.Timestamptz(6)
+  end        DateTime @db.Timestamptz(6)
+  workplace  Int
+  category   Int
+  completed  Boolean?
+}
+
+model configuration {
+  id                Int      @id @default(autoincrement())
+  created_at        DateTime @default(now()) @db.Timestamp(6)
+  workplace_id      Int
+  lunch_break_times Json?    @db.Json
+}

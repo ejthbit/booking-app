@@ -1,4 +1,4 @@
-const whitelist = process.env.ORIGIN.split(',')
+const whitelist = process.env.NODE_ENV === 'production' ? process.env.ORIGIN.split(',') : process.env.ORIGIN_DEV
 const corsOptions = {
     origin: (origin, callback) => {
         if (whitelist.indexOf(origin) !== -1) {

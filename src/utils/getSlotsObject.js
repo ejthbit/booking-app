@@ -1,18 +1,25 @@
 import { add, parseISO, getTime } from 'date-fns'
+import isNilOrEmpty from './isNilOrEmpty'
 
-export const getSlots = (start, end, duration, bookedAppointments) => {
+const excludeSlotsInsideLunchBreak = ({ breakStart, breakEnd }, slots) =>
+    slots.filter(({ timeSlotStart, timeSlotEnd }) => breakStart > timeSlotStart || breakEnd < timeSlotEnd)
+
+export const getSlots = (start, end, duration, bookedAppointments, lunchBreakObj) => {
     let parsedStart = parseISO(start)
     let parsedEnd = parseISO(end)
-    let results = []
+    const results = []
 
-    while (getTime(parsedStart) <= getTime(parsedEnd)) {
+    while (getTime(parsedStart) < getTime(parsedEnd)) {
         results.push({
             timeSlotStart: parsedStart.toISOString(),
             timeSlotEnd: add(parsedStart, { minutes: duration }).toISOString(),
         })
         parsedStart = add(parsedStart, { minutes: duration })
     }
-    return !bookedAppointments ? results : results.filter(({ timeSlotStart }) => !bookedAppointments.includes(timeSlotStart))
+    const slots = !bookedAppointments
+        ? results
+        : results.filter(({ timeSlotStart }) => !bookedAppointments.includes(timeSlotStart))
+    return !isNilOrEmpty(lunchBreakObj) ? excludeSlotsInsideLunchBreak(lunchBreakObj, slots) : slots
 }
 
 /*
