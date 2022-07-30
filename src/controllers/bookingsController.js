@@ -92,7 +92,7 @@ export const findBookingById = async (req, res, next) => {
 export const updateBooking = async (req, res, next) => {
     try {
         const { id } = req.params
-        const { name, start, end, birthdate, completed, category } = req.body
+        const { name, start, end, birthdate, completed, phone, category } = req.body
         const updatedBooking = await prisma.appointments.update({
             where: {
                 id: Number(id),

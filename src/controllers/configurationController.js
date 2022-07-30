@@ -31,3 +31,12 @@ export const sendMessage = async (req, res, next) => {
         next(err)
     }
 }
+
+export const getBookingCategories = async (_, res, next) => {
+    try {
+        const bookingCategories = await prisma.categories.findMany()
+        res.status(200).send({ data: bookingCategories, status: 200 })
+    } catch (err) {
+        next(err)
+    }
+}

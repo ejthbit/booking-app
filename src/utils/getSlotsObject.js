@@ -18,7 +18,7 @@ export const getSlots = (start, end, duration, bookedAppointments, lunchBreakObj
     }
     const slots = !bookedAppointments
         ? results
-        : results.filter(({ timeSlotStart }) => !bookedAppointments.includes(timeSlotStart))
+        : results.filter(({ timeSlotStart }) => !bookedAppointments.includes(timeSlotStart)) // bug calculate difference between start and end then filter out
     return !isNilOrEmpty(lunchBreakObj) ? excludeSlotsInsideLunchBreak(lunchBreakObj, slots) : slots
 }
 

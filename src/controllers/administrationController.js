@@ -7,8 +7,8 @@ import jwt from 'jsonwebtoken'
 export const createDoctorService = async (req, res, next) => {
     try {
         const { month, days, workplace } = req.body
-        const existingBooking = await prisma.doctorServices.findFirst({ where: { month, workplace: Number(workplace) } })
-        if (existingBooking) {
+        const existingService = await prisma.doctorServices.findFirst({ where: { month, workplace: Number(workplace) } })
+        if (existingService) {
             res.status(409).send({
                 error: 409,
                 message: 'Service already exists',

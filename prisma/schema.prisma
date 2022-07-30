@@ -82,3 +82,10 @@ model configuration {
   workplace_id      Int
   lunch_break_times Json?    @db.Json
 }
+
+model categories {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  name        String   @db.VarChar(255)
+  category_id Int
+}
