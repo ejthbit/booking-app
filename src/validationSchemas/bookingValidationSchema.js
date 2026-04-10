@@ -12,4 +12,7 @@ export const bookingValidationSchema = [
     body('workplace', 'Workplace cannot be empty!').exists({
         checkNull: true,
     }),
+    body('start', 'Start time is required and must be a valid ISO8601 date!').exists({ checkNull: true }).isISO8601(),
+    body('end', 'End time is required and must be a valid ISO8601 date!').exists({ checkNull: true }).isISO8601(),
+    body('category', 'Category is required and must be an integer!').exists({ checkNull: true }).isInt(),
 ]

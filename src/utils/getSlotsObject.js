@@ -10,15 +10,19 @@ export const getSlots = (start, end, duration, bookedAppointments, lunchBreakObj
     const results = []
 
     while (getTime(parsedStart) < getTime(parsedEnd)) {
+        const nextSlot = add(parsedStart, { minutes: duration })
         results.push({
             timeSlotStart: parsedStart.toISOString(),
-            timeSlotEnd: add(parsedStart, { minutes: duration }).toISOString(),
+            timeSlotEnd: nextSlot.toISOString(),
         })
-        parsedStart = add(parsedStart, { minutes: duration })
+        parsedStart = nextSlot
     }
     const slots = !bookedAppointments
         ? results
-        : results.filter(({ timeSlotStart }) => !bookedAppointments.includes(timeSlotStart)) // bug calculate difference between start and end then filter out
+        : (() => {
+              const bookedSet = new Set(bookedAppointments)
+              return results.filter(({ timeSlotStart }) => !bookedSet.has(timeSlotStart))
+          })()
     return !isNilOrEmpty(lunchBreakObj) ? excludeSlotsInsideLunchBreak(lunchBreakObj, slots) : slots
 }
 

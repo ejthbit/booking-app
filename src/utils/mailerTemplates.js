@@ -14,25 +14,84 @@ Potvrzujeme přijetí Vaší objednávky v ambulanci ${selectedAmbulance.name} n
     })}.
 V případě změny Vašeho termínu, budete kontaktována telefonicky.
 Pokud máte jakékoli dotazy týkající se Vaši objednávky,
-kontaktujte nás telefonicky nebo prostřednictvím emailu
-${selectedAmbulance.contact.email}
+kontaktujte nás telefonicky.
+${selectedAmbulance.contact.phone}
 
 Těšíme se na Vás.
 
 S pozdravem
-MUDr. Miroslav Vaněk
-Gynekologická ambulance s.r.o.
+MUDr. Vlastimil Škuta
+Gynekologicko-porodnická ambulance s.r.o.
+www.gynekologie-skuta.cz
 `,
 })
 
-export const contactFormTemplate = ({ from, name, text }, to) => ({
-    from,
+export const contactFormTemplate = ({ from, name, text, subject = 'Zpráva z kontaktního formuláře', ambulance }, to) => ({
+    from: {
+        name: name,
+        address: to,
+    },
     to,
-    subject: 'Zpráva z kontaktního formuláře',
+    subject: `${subject} - ${ambulance} - ${from}`,
     text: `${text}
 
 ${name} - ${from}
 ------------
-Tato zpráva byla zaslána pomocí kontaktního formuláře na webových stránkách vanek-gynekologie.cz
+Tato zpráva byla zaslána pomocí formuláře na webových stránkách gynekologie-skuta.cz
     `,
+    replyTo: from,
+})
+
+export const deleteTemplate = ({ start, contact, name }) => ({
+    from: process.env.EMAIL,
+    to: contact.email,
+    subject: 'Zrušení objednávky termínu',
+    text: `Dobrý den
+(${name})
+Omlouváme se za zrušení Vaší objednávky v termínu ${start.toLocaleString('en-GB', {
+        timeZone: 'UTC',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    })}.
+Pokud máte jakékoli dotazy týkající se Vaši objednávky,
+kontaktujte nás telefonicky.
+
+Těšíme se na Vás.
+
+S pozdravem
+MUDr. Vlastimil Škuta
+Gynekologicko-porodnická ambulance s.r.o.
+www.gynekologie-skuta.cz
+
+`,
+})
+
+export const updateTemplate = ({ start, contact, name }) => ({
+    from: process.env.EMAIL,
+    to: contact.email,
+    subject: 'Změna objednávky termínu',
+    text: `Dobrý den
+(${name})
+Omlouváme se byli jsme nuceni změnit termín Vaší objednávky na ${start.toLocaleString('en-GB', {
+        timeZone: 'UTC',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    })}.
+Pokud máte jakékoli dotazy týkající se Vaši objednávky,
+kontaktujte nás telefonicky.
+
+Těšíme se na Vás.
+
+S pozdravem
+MUDr. Vlastimil Škuta
+Gynekologicko-porodnická ambulance s.r.o.
+www.gynekologie-skuta.cz
+
+`,
 })

@@ -1,4 +1,8 @@
-import { either, isEmpty, isNil } from 'ramda'
-
-const isNilOrEmpty = either(isNil, isEmpty)
+const isNilOrEmpty = (value) => {
+    if (value == null) return true
+    if (typeof value === 'string') return value.length === 0
+    if (Array.isArray(value)) return value.length === 0
+    if (typeof value === 'object') return Object.keys(value).length === 0
+    return false
+}
 export default isNilOrEmpty
