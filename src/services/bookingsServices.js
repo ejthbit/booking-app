@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '../prismaClient'
 import { parseISO } from 'date-fns'
 
-const prisma = new PrismaClient()
-
-export const createBooking = async ({ contact, name, birthDate: birthdate, start, end, workplace, category }) => {
+export const createBooking = async ({ contact, name, birthDate: birthdate, start, end, workplace, category, note = null }, tx = prisma) => {
     try {
         const bookingData = {
             contact,
@@ -13,8 +11,9 @@ export const createBooking = async ({ contact, name, birthDate: birthdate, start
             end,
             workplace,
             category,
+            note,
         }
-        const newBooking = await prisma.appointments.create({
+        const newBooking = await tx.appointments.create({
             data: bookingData,
         })
         return newBooking

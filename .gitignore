@@ -10,5 +10,8 @@ lerna-debug.log*
 
 # dotenv environment variables file
 .env
-.env.test
+.env.*
 dist
+docs
+CLAUDE.md
+.claude

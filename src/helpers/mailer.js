@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 
 const transporter = nodemailer.createTransport({
-    port: 465, // true for 465, false for other ports
+    port: 465,
     host: process.env.SMTP_SERVER,
     auth: {
         user: process.env.EMAIL,
@@ -11,15 +11,11 @@ const transporter = nodemailer.createTransport({
 })
 
 export const checkMailerConnection = () =>
-    transporter.verify((error) => {
-        if (error) return false
-        else return true
-    })
+    transporter.verify().then(() => true).catch(() => false)
 
-export const sendMail = (mailData, res) =>
-    transporter.sendMail(mailData, (error, info) => {
-        if (error) return error
-        else res.status(200).send({ message: 'Mail send successfully', message_id: info.messageId })
+export const sendMail = (mailData) =>
+    transporter.sendMail(mailData).catch((error) => {
+        console.error('Failed to send email:', error)
     })
 
 export default transporter

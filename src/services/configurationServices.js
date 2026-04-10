@@ -1,17 +1,14 @@
-import { PrismaClient } from '.prisma/client'
+import prisma from '../prismaClient'
 import { parseISO, set } from 'date-fns'
 import { getISODateStringWithCorrectOffset } from '../utils/getISOStringWithOffset'
 import isNilOrEmpty from '../utils/isNilOrEmpty'
 
-const prisma = new PrismaClient()
-
 export const getLunchBreakTimes = async (workplace, date) => {
-    const configuration =
-        (await prisma.configuration.findFirst({
-            where: {
-                workplace_id: Number(workplace),
-            },
-        })) ?? {}
+    const configuration = await prisma.configuration.findFirst({
+        where: {
+            workplace_id: Number(workplace),
+        },
+    })
 
     const breakStartHoursMinutes = configuration?.lunch_break_times?.start.split(':') ?? []
     const breakEndHoursMinutes = configuration?.lunch_break_times?.end.split(':') ?? []
