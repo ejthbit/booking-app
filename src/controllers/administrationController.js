@@ -70,7 +70,7 @@ export const signUp = async (req, res, next) => {
                 name,
                 email,
                 password: hash,
-                ...(default_workplace != null && { default_workplace: Number(default_workplace) }),
+                ...(default_workplace != null && { default_workplace: parseInt(default_workplace, 10) }),
             },
         })
         const { password: _, ...safeUser } = newUser
@@ -183,9 +183,11 @@ export const deleteUser = async (req, res, next) => {
 
 export const getUsers = async (req, res, next) => {
     try {
-        const users = await prisma.users.findMany()
+        const limit = Math.min(parseInt(req.query.limit, 10) || 50, 100)
+        const page = Math.max(parseInt(req.query.page, 10) || 1, 1)
+        const users = await prisma.users.findMany({ take: limit, skip: (page - 1) * limit })
         const safeUsers = users.map(({ password: _, ...u }) => u)
-        res.status(200).json({ data: safeUsers })
+        res.status(200).json({ data: safeUsers, page, limit })
     } catch (err) {
         next(err)
     }
@@ -194,18 +196,20 @@ export const getUsers = async (req, res, next) => {
 export const createDoctor = async (req, res, next) => {
     try {
         const { name, workplace_id, categories, preferred_service_start } = req.body
-        const last = await prisma.doctors.findFirst({ orderBy: { doctor_id: 'desc' } })
-        const nextDoctorId = last ? last.doctor_id + 1 : 1
-        const newDoctor = await prisma.doctors.create({
-            data: {
-                doctor_id: nextDoctorId,
-                name,
-                workplace_id: workplace_id ?? [],
-                categories: categories ?? [],
-                ...(preferred_service_start != null && { preferred_service_start }),
-            },
+        const newDoctor = await prisma.$transaction(async (tx) => {
+            const last = await tx.doctors.findFirst({ orderBy: { doctor_id: 'desc' } })
+            const nextDoctorId = last ? last.doctor_id + 1 : 1
+            return tx.doctors.create({
+                data: {
+                    doctor_id: nextDoctorId,
+                    name,
+                    workplace_id: workplace_id ?? [],
+                    categories: categories ?? [],
+                    ...(preferred_service_start != null && { preferred_service_start }),
+                },
+            })
         })
-        res.status(200).json(newDoctor)
+        res.status(201).json({ data: newDoctor })
     } catch (err) {
         next(err)
     }
@@ -215,18 +219,19 @@ export const updateDoctor = async (req, res, next) => {
     try {
         const { id } = req.params
         const { name, workplace_id, categories, preferred_service_start } = req.body
+        const patchData = {
+            ...(name !== undefined && { name }),
+            ...(workplace_id !== undefined && { workplace_id }),
+            ...(categories !== undefined && { categories }),
+            ...(preferred_service_start !== undefined && { preferred_service_start }),
+        }
+        if (Object.keys(patchData).length === 0) {
+            return res.status(400).json({ message: 'No fields to update' })
+        }
         const existing = await prisma.doctors.findUnique({ where: { id: Number(id) } })
         if (!existing) return res.status(404).json({ message: 'Doctor not found' })
-        const updated = await prisma.doctors.update({
-            where: { id: Number(id) },
-            data: {
-                ...(name !== undefined && { name }),
-                ...(workplace_id !== undefined && { workplace_id }),
-                ...(categories !== undefined && { categories }),
-                ...(preferred_service_start !== undefined && { preferred_service_start }),
-            },
-        })
-        res.status(200).json(updated)
+        const updated = await prisma.doctors.update({ where: { id: Number(id) }, data: patchData })
+        res.status(200).json({ data: updated })
     } catch (err) {
         next(err)
     }
