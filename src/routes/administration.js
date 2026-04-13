@@ -335,7 +335,11 @@ router
     .post('/announcements/announcement', verifyToken, adminstrationController.createAnnouncement)
     .delete('/announcements/announcement/:id', verifyToken, adminstrationController.deleteAnnouncement)
     .put('/announcements/announcement', verifyToken, adminstrationController.updatedAnnouncement)
+    .get('/users', verifyToken, requireAdmin, adminstrationController.getUsers)
     .delete('/user/:id', verifyToken, requireAdmin, adminstrationController.deleteUser)
     .put('/user/:id', verifyToken, adminstrationController.updateUser)
+    .post('/doctor', verifyToken, requireAdmin, adminstrationController.createDoctor)
+    .put('/doctor/:id', verifyToken, requireAdmin, adminstrationController.updateDoctor)
+    .delete('/doctor/:id', verifyToken, requireAdmin, adminstrationController.deleteDoctor)
 
 export default router
