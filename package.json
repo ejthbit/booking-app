@@ -1,6 +1,6 @@
 {
     "name": "booking-app",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "description": "Booking app which will handle deleting, adding, finding bookings for private ambulances",
     "main": "index.js",
     "scripts": {
