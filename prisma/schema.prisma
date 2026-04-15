@@ -95,3 +95,15 @@ model announcements {
   author      String?  @db.VarChar(255)
   enabled     Boolean  @default(true)
 }
+
+model vacations {
+  id         Int      @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  start      DateTime @db.Timestamptz(6)
+  end        DateTime @db.Timestamptz(6)
+  workplace  Int
+  note       String?
+  created_by String   @db.VarChar(255)
+
+  @@index([workplace, start, end])
+}

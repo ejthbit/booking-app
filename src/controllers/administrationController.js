@@ -1,6 +1,6 @@
 import prisma from '../prismaClient'
 import bcrypt from 'bcrypt'
-import { addHours } from 'date-fns'
+import { addHours, parseISO } from 'date-fns'
 import jwt from 'jsonwebtoken'
 
 export const createDoctorService = async (req, res, next) => {
@@ -281,6 +281,81 @@ export const updateUser = async (req, res, next) => {
         const { password: _, ...safeUser } = updatedUser
         res.status(200).json(safeUser)
     } catch (err) {
+        next(err)
+    }
+}
+
+export const getVacations = async (req, res, next) => {
+    try {
+        const { from, to, workplace } = req.params
+        const fromDate = parseISO(from)
+        const toDate = parseISO(to)
+        if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+            return res.status(400).json({ message: 'Invalid date range' })
+        }
+        const vacations = await prisma.vacations.findMany({
+            where: {
+                workplace: Number(workplace),
+                start: { lte: toDate },
+                end: { gte: fromDate },
+            },
+            orderBy: { start: 'asc' },
+        })
+        res.status(200).json(vacations)
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const createVacation = async (req, res, next) => {
+    try {
+        const { start, end, workplace, note } = req.body
+        const newVacation = await prisma.vacations.create({
+            data: {
+                start: new Date(start),
+                end: new Date(end),
+                workplace: Number(workplace),
+                ...(note && { note }),
+                created_by: req.user.email,
+            },
+        })
+        res.status(201).json(newVacation)
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const updateVacation = async (req, res, next) => {
+    try {
+        const { id } = req.params
+        const existing = await prisma.vacations.findUnique({ where: { id: Number(id) } })
+        if (!existing) return res.status(404).json({ message: 'Vacation not found' })
+
+        const { start, end, workplace, note } = req.body
+        const updated = await prisma.vacations.update({
+            where: { id: Number(id) },
+            data: {
+                ...(start !== undefined && { start: new Date(start) }),
+                ...(end !== undefined && { end: new Date(end) }),
+                ...(workplace !== undefined && { workplace: Number(workplace) }),
+                ...(note !== undefined && { note }),
+            },
+        })
+        res.status(200).json(updated)
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const deleteVacation = async (req, res, next) => {
+    try {
+        const { id } = req.params
+        await prisma.vacations.delete({ where: { id: Number(id) } })
+        return res.status(200).json({ message: 'Deleted' })
+    } catch (err) {
+        if (err.code === 'P2025') {
+            return res.status(404).json({ message: 'Vacation not found' })
+        }
         next(err)
     }
 }

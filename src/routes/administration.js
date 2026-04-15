@@ -501,5 +501,9 @@ router
     .post('/doctor', verifyToken, requireAdmin, validate(createDoctorValidationSchema), adminstrationController.createDoctor)
     .put('/doctor/:id', verifyToken, requireAdmin, validate(updateDoctorValidationSchema), adminstrationController.updateDoctor)
     .delete('/doctor/:id', verifyToken, requireAdmin, adminstrationController.deleteDoctor)
+    .get('/vacations/:from/:to/:workplace', verifyToken, adminstrationController.getVacations)
+    .post('/vacation', verifyToken, adminstrationController.createVacation)
+    .put('/vacation/:id', verifyToken, adminstrationController.updateVacation)
+    .delete('/vacation/:id', verifyToken, adminstrationController.deleteVacation)
 
 export default router

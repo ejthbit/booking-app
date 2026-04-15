@@ -114,13 +114,25 @@ export const deleteBooking = async (req, res, next) => {
 export const getAvailableTimeSlotsForDay = async (req, res, next) => {
     try {
         const { beginningOfDay, endOfDay, workplace, timeSlotDuration = 15 } = req.params
+        const workplaceId = Number(workplace)
+        const dayStart = parseISO(beginningOfDay)
+        const dayEnd = parseISO(endOfDay)
+
+        const vacation = await prisma.vacations.findFirst({
+            where: {
+                workplace: workplaceId,
+                start: { lte: dayEnd },
+                end: { gte: dayStart },
+            },
+        })
+        if (vacation) {
+            return res.status(200).json([])
+        }
+
         const existingBookings = await prisma.appointments.findMany({
             where: {
-                start: {
-                    gte: parseISO(beginningOfDay),
-                    lte: parseISO(endOfDay),
-                },
-                workplace: Number(workplace),
+                start: { gte: dayStart, lte: dayEnd },
+                workplace: workplaceId,
             },
             orderBy: { start: 'desc' },
         })
