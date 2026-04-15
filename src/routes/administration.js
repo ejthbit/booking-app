@@ -4,6 +4,7 @@ import verifyToken from '../middlewares/checkAuth'
 import requireAdmin from '../middlewares/requireAdmin'
 import validate from '../middlewares/validate'
 import { createDoctorValidationSchema, updateDoctorValidationSchema } from '../validationSchemas/doctorValidationSchema'
+import { createVacationValidationSchema, updateVacationValidationSchema } from '../validationSchemas/vacationValidationSchema'
 import rateLimit from 'express-rate-limit'
 
 const authLimiter = rateLimit({
@@ -502,8 +503,8 @@ router
     .put('/doctor/:id', verifyToken, requireAdmin, validate(updateDoctorValidationSchema), adminstrationController.updateDoctor)
     .delete('/doctor/:id', verifyToken, requireAdmin, adminstrationController.deleteDoctor)
     .get('/vacations/:from/:to/:workplace', verifyToken, adminstrationController.getVacations)
-    .post('/vacation', verifyToken, adminstrationController.createVacation)
-    .put('/vacation/:id', verifyToken, adminstrationController.updateVacation)
+    .post('/vacation', verifyToken, validate(createVacationValidationSchema), adminstrationController.createVacation)
+    .put('/vacation/:id', verifyToken, validate(updateVacationValidationSchema), adminstrationController.updateVacation)
     .delete('/vacation/:id', verifyToken, adminstrationController.deleteVacation)
 
 export default router

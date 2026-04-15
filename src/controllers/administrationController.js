@@ -84,7 +84,7 @@ export const signIn = async (req, res, next) => {
     try {
         const { email, password } = req.body
         const JWT_KEY_EXP_TIME = 8
-        const user = await prisma.users.findFirst({ where: { email } })
+        const user = await prisma.users.findUnique({ where: { email } })
         if (!user) return res.status(404).json({ message: 'User with given email not found!' })
         const result = await bcrypt.compare(password, user.password)
         if (!result) return res.status(401).json({ message: 'Auth Failed' })
@@ -310,11 +310,26 @@ export const getVacations = async (req, res, next) => {
 export const createVacation = async (req, res, next) => {
     try {
         const { start, end, workplace, note } = req.body
+        const startDate = new Date(start)
+        const endDate = new Date(end)
+        const workplaceId = Number(workplace)
+
+        const overlap = await prisma.vacations.findFirst({
+            where: {
+                workplace: workplaceId,
+                start: { lte: endDate },
+                end: { gte: startDate },
+            },
+        })
+        if (overlap) {
+            return res.status(409).json({ message: 'Vacation overlaps with an existing one' })
+        }
+
         const newVacation = await prisma.vacations.create({
             data: {
-                start: new Date(start),
-                end: new Date(end),
-                workplace: Number(workplace),
+                start: startDate,
+                end: endDate,
+                workplace: workplaceId,
                 ...(note && { note }),
                 created_by: req.user.email,
             },
