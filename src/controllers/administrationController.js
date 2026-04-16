@@ -1,6 +1,6 @@
 import prisma from '../prismaClient'
 import bcrypt from 'bcrypt'
-import { addHours } from 'date-fns'
+import { addHours, parseISO } from 'date-fns'
 import jwt from 'jsonwebtoken'
 
 export const createDoctorService = async (req, res, next) => {
@@ -84,7 +84,7 @@ export const signIn = async (req, res, next) => {
     try {
         const { email, password } = req.body
         const JWT_KEY_EXP_TIME = 8
-        const user = await prisma.users.findFirst({ where: { email } })
+        const user = await prisma.users.findUnique({ where: { email } })
         if (!user) return res.status(404).json({ message: 'User with given email not found!' })
         const result = await bcrypt.compare(password, user.password)
         if (!result) return res.status(401).json({ message: 'Auth Failed' })
@@ -281,6 +281,96 @@ export const updateUser = async (req, res, next) => {
         const { password: _, ...safeUser } = updatedUser
         res.status(200).json(safeUser)
     } catch (err) {
+        next(err)
+    }
+}
+
+export const getVacations = async (req, res, next) => {
+    try {
+        const { from, to, workplace } = req.params
+        const fromDate = parseISO(from)
+        const toDate = parseISO(to)
+        if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+            return res.status(400).json({ message: 'Invalid date range' })
+        }
+        const vacations = await prisma.vacations.findMany({
+            where: {
+                workplace: Number(workplace),
+                start: { lte: toDate },
+                end: { gte: fromDate },
+            },
+            orderBy: { start: 'asc' },
+        })
+        res.status(200).json(vacations)
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const createVacation = async (req, res, next) => {
+    try {
+        const { start, end, workplace, note } = req.body
+        const startDate = new Date(start)
+        const endDate = new Date(end)
+        const workplaceId = Number(workplace)
+
+        const overlap = await prisma.vacations.findFirst({
+            where: {
+                workplace: workplaceId,
+                start: { lte: endDate },
+                end: { gte: startDate },
+            },
+        })
+        if (overlap) {
+            return res.status(409).json({ message: 'Vacation overlaps with an existing one' })
+        }
+
+        const newVacation = await prisma.vacations.create({
+            data: {
+                start: startDate,
+                end: endDate,
+                workplace: workplaceId,
+                ...(note && { note }),
+                created_by: req.user.email,
+            },
+        })
+        res.status(201).json(newVacation)
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const updateVacation = async (req, res, next) => {
+    try {
+        const { id } = req.params
+        const existing = await prisma.vacations.findUnique({ where: { id: Number(id) } })
+        if (!existing) return res.status(404).json({ message: 'Vacation not found' })
+
+        const { start, end, workplace, note } = req.body
+        const updated = await prisma.vacations.update({
+            where: { id: Number(id) },
+            data: {
+                ...(start !== undefined && { start: new Date(start) }),
+                ...(end !== undefined && { end: new Date(end) }),
+                ...(workplace !== undefined && { workplace: Number(workplace) }),
+                ...(note !== undefined && { note }),
+            },
+        })
+        res.status(200).json(updated)
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const deleteVacation = async (req, res, next) => {
+    try {
+        const { id } = req.params
+        await prisma.vacations.delete({ where: { id: Number(id) } })
+        return res.status(200).json({ message: 'Deleted' })
+    } catch (err) {
+        if (err.code === 'P2025') {
+            return res.status(404).json({ message: 'Vacation not found' })
+        }
         next(err)
     }
 }
