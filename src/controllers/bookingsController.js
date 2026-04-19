@@ -20,7 +20,7 @@ export const create = async (req, res, next) => {
         if (!newBooking) {
             return res.status(409).json({ error: 409, message: 'This booking slot is already taken.' })
         }
-        if (contact.email) sendMail(confirmationTemplate(selectedAmbulance, newBooking))
+        if (contact?.email) sendMail(confirmationTemplate(selectedAmbulance, newBooking))
         res.status(200).json(newBooking)
     } catch (err) {
         next(err)

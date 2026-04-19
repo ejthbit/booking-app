@@ -1,7 +1,10 @@
 import prisma from '../prismaClient'
 import { parseISO } from 'date-fns'
 
-export const createBooking = async ({ contact, name, birthDate: birthdate, start, end, workplace, category, note = null }, tx = prisma) => {
+export const createBooking = async (
+    { contact, name, birthDate: birthdate, start, end, workplace, category, note = null },
+    tx = prisma
+) => {
     try {
         const bookingData = {
             contact,
