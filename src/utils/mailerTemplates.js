@@ -20,9 +20,9 @@ ${selectedAmbulance.contact.phone}
 Těšíme se na Vás.
 
 S pozdravem
-MUDr. Vlastimil Škuta
+MUDr. Miroslav Vaňek
 Gynekologicko-porodnická ambulance s.r.o.
-www.gynekologie-skuta.cz
+https://vanek-gynekologie.cz/
 `,
 })
 
@@ -37,7 +37,7 @@ export const contactFormTemplate = ({ from, name, text, subject = 'Zpráva z kon
 
 ${name} - ${from}
 ------------
-Tato zpráva byla zaslána pomocí formuláře na webových stránkách gynekologie-skuta.cz
+Tato zpráva byla zaslána pomocí formuláře na webových stránkách vanek-gynekologie.cz
     `,
     replyTo: from,
 })
@@ -62,9 +62,9 @@ kontaktujte nás telefonicky.
 Těšíme se na Vás.
 
 S pozdravem
-MUDr. Vlastimil Škuta
+MUDr. Miroslav Vaňek
 Gynekologicko-porodnická ambulance s.r.o.
-www.gynekologie-skuta.cz
+https://vanek-gynekologie.cz/
 
 `,
 })
@@ -89,9 +89,10 @@ kontaktujte nás telefonicky.
 Těšíme se na Vás.
 
 S pozdravem
-MUDr. Vlastimil Škuta
+MUDr. Miroslav Vaňek
+
 Gynekologicko-porodnická ambulance s.r.o.
-www.gynekologie-skuta.cz
+https://vanek-gynekologie.cz/
 
 `,
 })

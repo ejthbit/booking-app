@@ -24,7 +24,7 @@ export const getDoctors = async (req, res, next) => {
 
 export const sendMessage = async (req, res, next) => {
     try {
-        sendMail(contactFormTemplate(req.body, 'info@gynekologie-skuta.cz'))
+        sendMail(contactFormTemplate(req.body, 'info@vanek-gynekologie.cz'))
         res.status(200).json({ message: 'Message sent successfully' })
     } catch (err) {
         next(err)
